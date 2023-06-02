@@ -19,8 +19,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'django_filters',
-    'api',
     'users',
+    'recipes',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +61,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': config('PG_DATABASE', default='postgres', cast=str),
         'USER': config('PG_USER', default='postgres', cast=str),
-        'PASSWORD': config('PG_PASSWORD', default='', cast=str),
+        'PASSWORD': config('PG_PASSWORD', default='postgres', cast=str),
         'HOST': config('PG_HOST', default='localhost'),
         'PORT': config('PG_PORT', default=5432)
     }
@@ -89,19 +89,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ###########################
 #  DJANGO REST FRAMEWORK
 ###########################
-# REST_FRAMEWORK = {
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.AllowAny',
-#     ],
-#
-#     # 'DEFAULT_AUTHENTICATION_CLASSES': [
-#     #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-#     # ],
-#     # 'DEFAULT_PAGINATION_CLASS':
-#     #     'rest_framework.pagination.LimitOffsetPagination',
-#     # 'PAGE_SIZE': 10,
-# }
+REST_FRAMEWORK = {
+    # 'DEFAULT_RENDERER_CLASSES': [
+    #     'rest_framework.renderers.JSONRenderer',
+    # ],
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.AllowAny',
+    # ],
 
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ],
+    # 'DEFAULT_PAGINATION_CLASS':
+    #     'rest_framework.pagination.LimitOffsetPagination',
+    # 'PAGE_SIZE': 10,
+}
 
 
 ###########################
