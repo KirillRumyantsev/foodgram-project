@@ -13,19 +13,16 @@ class Tag(models.Model):
         verbose_name='Тег',
         max_length=10,
         unique=True,
-        blank=False
     )
     color = models.CharField(
         max_length=10,
         verbose_name='Цвет тега',
         unique=True,
-        blank=False
     )
     slug = models.SlugField(
         verbose_name='Slug тега',
         max_length=10,
         unique=True,
-        blank=False
     )
 
     class Meta:

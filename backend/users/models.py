@@ -53,3 +53,26 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик',
+    )
+    author = models.ForeignKey(
+        CustomUser, null=True,
+        on_delete=models.CASCADE,
+        related_name='followed',
+        verbose_name='Автор',
+    )
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['author', 'user'],
+            name='unique_object'
+        )]
+        verbose_name = 'Подписчик'
+        verbose_name_plural = 'Подписчики'

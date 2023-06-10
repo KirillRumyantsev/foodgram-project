@@ -9,19 +9,16 @@ class Recipe(models.Model):
     name = models.CharField(
         verbose_name='Название рецепта',
         max_length=200,
-        blank=False
     )
     author = models.ForeignKey(
         'users.CustomUser',
         on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор рецепта',
-        blank=False
     )
     image = models.ImageField(
         upload_to='recipes/',
         verbose_name='Картинка',
-        blank=False
     )
     text = models.TextField(
         verbose_name='Текстовое описание'
@@ -37,7 +34,7 @@ class Recipe(models.Model):
         Tag,
         through='TagsRecipe',
         related_name='recipes',
-        verbose_name='Список ингредиентов',
+        verbose_name='Тег',
         blank=False
     )
     cooking_time = models.PositiveSmallIntegerField(
@@ -45,7 +42,6 @@ class Recipe(models.Model):
         validators=[MinValueValidator(
             1, 'Время приготовления не может быть меньше 1 минуты'
         )],
-        blank=False
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -66,7 +62,7 @@ class IngredientsRecipe(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredients_recipe'
+        related_name='recipe_ingredients'
     )
     recipe = models.ForeignKey(
         Recipe,
