@@ -1,6 +1,7 @@
-from pathlib import Path
 from datetime import timedelta
-from decouple import config, Csv
+from pathlib import Path
+
+from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -95,7 +96,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ###########################
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -115,7 +116,7 @@ DJOSER = {
     'HIDE_USERS': False,
     'SERIALIZERS': {
         'users': 'users.serializers.CustomUserSerializer',
-        'user_create': 'users.serializers.UserRegistrationSerializer',
+        'user_create': 'users.serializers.CustomUserCreateSerializer',
         'current_user': 'users.serializers.CustomUserSerializer',
     },
     'PERMISSIONS': {

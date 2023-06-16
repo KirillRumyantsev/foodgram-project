@@ -1,23 +1,21 @@
-from rest_framework import serializers, validators
-from djoser.serializers import (
-    UserCreateSerializer as BaseUserRegistrationSerializer
-)
+from djoser.serializers import UserCreateSerializer, UserSerializer
 
-from recipes.serializers import RecipeSerializer
+from rest_framework import serializers
+
 from recipes.models.recipe import Recipe
+
 from .models import CustomUser, Follow
-from .mixins import IsSubscribedMixin
 
 
-class UserRegistrationSerializer(BaseUserRegistrationSerializer):
-    class Meta(BaseUserRegistrationSerializer.Meta):
+class CustomUserCreateSerializer(UserCreateSerializer):
+
+    class Meta:
         model = CustomUser
-        fields = [
-            'email', 'id', 'username', 'first_name', 'last_name', 'password'
-        ]
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'password')
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(
         method_name='get_is_subscribed'
     )
@@ -31,52 +29,44 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return Follow.objects.filter(user=user, author=obj).exists()
 
     class Meta:
-        fields = [
-            'email', 'id', 'username',
-            'first_name', 'last_name', 'is_subscribed'
-        ]
         model = CustomUser
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed')
 
 
-class UserSubscribeSerializer(serializers.ModelSerializer, IsSubscribedMixin):
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField('get_recipes_count')
-    username = serializers.CharField(
-        required=True,
-        validators=[validators.UniqueValidator(
-            queryset=CustomUser.objects.all()
-        )]
+class SubscriptionSerializer(CustomUserSerializer):
+    recipes = serializers.SerializerMethodField(method_name='get_recipes')
+    recipes_count = serializers.SerializerMethodField(
+        method_name='get_recipes_count'
     )
+
+    def get_srs(self):
+        from recipes.serializers import ShortRecipeSerializer
+
+        return ShortRecipeSerializer
+
+    def get_recipes(self, obj):
+        author_recipes = Recipe.objects.filter(author=obj)
+
+        if 'recipes_limit' in self.context.get('request').GET:
+            recipes_limit = self.context.get('request').GET['recipes_limit']
+            author_recipes = author_recipes[:int(recipes_limit)]
+
+        if author_recipes:
+            serializer = self.get_srs()(
+                author_recipes,
+                context={'request': self.context.get('request')},
+                many=True
+            )
+            return serializer.data
+
+        return []
+
+    def get_recipes_count(self, obj):
+
+        return Recipe.objects.filter(author=obj).count()
 
     class Meta:
         model = CustomUser
-        fields = [
-            'email', 'id', 'username', 'first_name', 'last_name',
-            'recipes', 'recipes_count', 'is_subscribed'
-        ]
-
-    def validate(self, data):
-        author = data['followed']
-        user = data['follower']
-        if user == author:
-            raise serializers.ValidationError('Нельзя подписаться на себя!')
-        if (Follow.objects.filter(author=author, user=user).exists()):
-            raise serializers.ValidationError('Вы уже подписались!')
-        return data
-
-    def create(self, validated_data):
-        subscribe = Follow.objects.create(**validated_data)
-        subscribe.save()
-        return subscribe
-
-    def get_recipes_count(self, data):
-        return Recipe.objects.filter(author=data).count()
-
-    def get_recipes(self, data):
-        recipes_limit = self.context.get('request').GET.get('recipes_limit')
-        recipes = (
-            data.recipes.all()[:int(recipes_limit)]
-            if recipes_limit else data.recipes
-        )
-        serializer = serializers.ListSerializer(child=RecipeSerializer())
-        return serializer.to_representation(recipes)
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count')

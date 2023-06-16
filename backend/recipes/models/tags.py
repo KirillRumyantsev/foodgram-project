@@ -1,13 +1,6 @@
 from django.db import models
 
 
-# CHOICES_COLOR = (
-#         ('Orange', 'Рыжий'),
-#         ('Green', 'Зеленый'),
-#         ('Purple', 'Фиолетовый'),
-# )
-
-
 class Tag(models.Model):
     name = models.CharField(
         verbose_name='Тег',

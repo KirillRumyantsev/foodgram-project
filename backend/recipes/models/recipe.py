@@ -1,5 +1,5 @@
-from django.db import models
 from django.core.validators import MinValueValidator
+from django.db import models
 
 from .ingredients import Ingredient
 from .tags import Tag
@@ -21,21 +21,21 @@ class Recipe(models.Model):
         verbose_name='Картинка',
     )
     text = models.TextField(
-        verbose_name='Текстовое описание'
+        verbose_name='Текстовое описание',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientsRecipe',
         related_name='recipes',
         verbose_name='Список ингредиентов',
-        blank=False
+        blank=False,
     )
     tags = models.ManyToManyField(
         Tag,
         through='TagsRecipe',
         related_name='recipes',
         verbose_name='Тег',
-        blank=False
+        blank=False,
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления, мин',
@@ -46,13 +46,12 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
-        db_index=True
     )
 
     class Meta:
+        ordering = ("-pub_date",)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ("-pub_date",)
 
     def __str__(self):
         return self.name
@@ -96,6 +95,10 @@ class TagsRecipe(models.Model):
         on_delete=models.CASCADE
     )
 
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
@@ -128,8 +131,6 @@ class FavoriteRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        blank=False,
-        null=False,
         related_name='favorite_recipes'
     )
 
