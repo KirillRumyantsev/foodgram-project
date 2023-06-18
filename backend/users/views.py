@@ -1,5 +1,5 @@
 from djoser.views import UserViewSet
-from rest_framework import status, exceptions
+from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import CustomUser, Follow
-from .serializers import SubscriptionSerializer, CustomUserSerializer
+from .serializers import CustomUserSerializer, SubscriptionSerializer
 
 
 class CustomUserViewSet(UserViewSet):

@@ -3,11 +3,12 @@ from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import exceptions, serializers
 
+from users.serializers import CustomUserSerializer
+
 from .models.ingredients import Ingredient
 from .models.recipe import (FavoriteRecipe, IngredientsRecipe, Recipe,
                             ShoppingCart)
 from .models.tags import Tag
-from users.serializers import CustomUserSerializer
 
 
 class IngredientSerializer(serializers.ModelSerializer):

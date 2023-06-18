@@ -9,8 +9,8 @@ from .filters import RecipeFilter
 from .models.recipe import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
                             Tag)
 from .permissions import AuthorOrReadOnly
-from .serializers import (RecipeCreateUpdateSerializer, RecipeSerializer,
-                          ShortRecipeSerializer, IngredientSerializer,
+from .serializers import (IngredientSerializer, RecipeCreateUpdateSerializer,
+                          RecipeSerializer, ShortRecipeSerializer,
                           TagSerializer)
 from .utils import get_shopping_list
 
