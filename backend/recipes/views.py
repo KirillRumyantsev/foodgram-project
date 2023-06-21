@@ -1,13 +1,14 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import exceptions, filters, status, viewsets
+from rest_framework import exceptions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .filters import RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .models.recipe import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
                             Tag)
+from .pagination import CustomPageNumberPagination
 from .permissions import AuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeCreateUpdateSerializer,
                           RecipeSerializer, ShortRecipeSerializer,
@@ -16,20 +17,33 @@ from .utils import get_shopping_list
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """
+    Вьюсет для модели рецепта.
+    """
+
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_class = RecipeFilter
+    filterset_class = RecipeFilter
     permission_classes = (AuthorOrReadOnly,)
+    pagination_class = CustomPageNumberPagination
 
     def get_serializer_class(self):
+        """
+        Выбор сериализатора по действиям пользователя.
+        """
         if self.action in ('create', 'partial_update'):
             return RecipeCreateUpdateSerializer
-
         return RecipeSerializer
 
-    @action(detail=True, methods=('post', 'delete'))
+    @action(
+        detail=True,
+        methods=('post', 'delete')
+    )
     def favorite(self, request, pk=None):
+        """
+        Добавление и удаление рецепта из избранного.
+        """
         user = self.request.user
         recipe = get_object_or_404(Recipe, pk=pk)
 
@@ -44,7 +58,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe,
                 context={'request': request}
             )
-
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
@@ -54,13 +67,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe=recipe
             )
             favorite.delete()
-
             return Response(status=status.HTTP_204_NO_CONTENT)
-
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=('post', 'delete'))
+    @action(
+        detail=True,
+        methods=('post', 'delete')
+    )
     def shopping_cart(self, request, pk=None):
+        """
+        Добавление и удаление рецепта из списка покупок.
+        """
         user = self.request.user
         recipe = get_object_or_404(Recipe, pk=pk)
 
@@ -77,7 +94,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe,
                 context={'request': request}
             )
-
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
@@ -94,18 +110,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe=recipe
             )
             shopping_cart.delete()
-
             return Response(status=status.HTTP_204_NO_CONTENT)
-
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
         detail=False,
-        methods=['GET'],
+        methods=('get',),
         url_path='download_shopping_cart',
         permission_classes=[IsAuthenticated]
     )
     def download_shopping_cart(self, request):
+        """
+        Загрузка списка покупок.
+        """
         try:
             return get_shopping_list(request)
         except:
@@ -113,14 +130,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
+    """
+    Вьюсет для модели ингредиента.
+    """
+
     pagination_class = None
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
 
 
 class TagsViewSet(viewsets.ModelViewSet):
+    """
+    Вьюсет для модели тега.
+    """
+
     pagination_class = None
     queryset = Tag.objects.all()
     serializer_class = TagSerializer

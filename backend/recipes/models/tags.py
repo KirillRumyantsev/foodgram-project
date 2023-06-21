@@ -2,6 +2,10 @@ from django.db import models
 
 
 class Tag(models.Model):
+    """
+    Модель тега.
+    """
+
     name = models.CharField(
         verbose_name='Тег',
         max_length=10,

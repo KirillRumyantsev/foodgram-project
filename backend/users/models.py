@@ -3,6 +3,10 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
+    """
+    Кастомная модель пользователя.
+    """
+
     username = models.CharField(
         verbose_name='Логин',
         max_length=150,
@@ -31,7 +35,6 @@ class CustomUser(AbstractUser):
         verbose_name='Фамилия',
         max_length=150
     )
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [
         'username',
@@ -56,6 +59,10 @@ class CustomUser(AbstractUser):
 
 
 class Follow(models.Model):
+    """
+    Модель подписки.
+    """
+
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,

@@ -6,6 +6,10 @@ from .tags import Tag
 
 
 class Recipe(models.Model):
+    """
+    Модель рецепта.
+    """
+
     name = models.CharField(
         verbose_name='Название рецепта',
         max_length=200,
@@ -58,6 +62,10 @@ class Recipe(models.Model):
 
 
 class IngredientsRecipe(models.Model):
+    """
+    Связанная модель ингредиента и рецепта.
+    """
+
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -86,6 +94,10 @@ class IngredientsRecipe(models.Model):
 
 
 class TagsRecipe(models.Model):
+    """
+    Связанная модель тега и рецепта.
+    """
+
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE
@@ -101,6 +113,10 @@ class TagsRecipe(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """
+    Модель списка покупок.
+    """
+
     user = models.ForeignKey(
         'users.CustomUser',
         on_delete=models.CASCADE,
@@ -123,6 +139,10 @@ class ShoppingCart(models.Model):
 
 
 class FavoriteRecipe(models.Model):
+    """
+    Модель избранного рецепта.
+    """
+
     user = models.ForeignKey(
         'users.CustomUser',
         on_delete=models.CASCADE,

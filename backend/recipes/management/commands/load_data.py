@@ -1,12 +1,15 @@
 import json
 
 from django.core.management.base import BaseCommand
-
 from recipes.models.ingredients import Ingredient
 
 
 class Command(BaseCommand):
-    help = 'Заполнение ингридиентов из json файла'
+    """
+    Заполнение ингредиентов из json файла.
+    """
+
+    help = 'Заполнение ингредиентов из json файла'
 
     def handle(self, *args, **kwargs):
         with open('data/ingredients.json', 'r', encoding='utf-8') as f:

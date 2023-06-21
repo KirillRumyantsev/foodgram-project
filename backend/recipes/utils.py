@@ -4,6 +4,9 @@ from .models.recipe import ShoppingCart
 
 
 def get_shopping_list(request):
+    """
+    Формирование списка покупок для выгрузки.
+    """
     shopping_cart = ShoppingCart.objects.filter(user=request.user).all()
     shopping_list = {}
     for item in shopping_cart:
@@ -21,8 +24,8 @@ def get_shopping_list(request):
                 shopping_list[name]['amount'] += amount
     content = (
         [f'{item["name"]} ({item["measurement_unit"]}) '
-        f'- {item["amount"]}\n'
-        for item in shopping_list.values()]
+            f'- {item["amount"]}\n'
+            for item in shopping_list.values()]
     )
     filename = 'shopping_list.txt'
     response = HttpResponse(content, content_type='text/plain')

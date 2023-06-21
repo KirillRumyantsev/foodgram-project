@@ -1,13 +1,15 @@
-from datetime import timedelta
+import os
 from pathlib import Path
 
-from decouple import Csv, config
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=Csv())
+SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
+DEBUG = os.getenv('DEBUG', 'False')
+ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS', '*'), '*']
 
 
 INSTALLED_APPS = [
@@ -61,12 +63,12 @@ WSGI_APPLICATION = 'foodgram_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': config('PG_DATABASE', default='postgres', cast=str),
-        'USER': config('PG_USER', default='postgres', cast=str),
-        'PASSWORD': config('PG_PASSWORD', default='postgres', cast=str),
-        'HOST': config('PG_HOST', default='localhost'),
-        'PORT': config('PG_PORT', default=5432)
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'django'),
+        'USER': os.getenv('POSTGRES_USER', 'django'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 
@@ -106,6 +108,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 6,
+
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ]
 }
 
 
@@ -140,8 +146,9 @@ USE_TZ = True
 ###########################
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'collected_static'
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/media'
 
 
 ###########################

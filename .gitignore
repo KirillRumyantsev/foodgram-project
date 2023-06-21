@@ -133,10 +133,10 @@ dmypy.json
 
 collected_static/
 /collected_static/
-*/collected_static/
+backend/collected_static/
 
-media/
-/media/
-*/media/
+backend/media/
+/backend/media/
+backend/media/
 
 */migrations/

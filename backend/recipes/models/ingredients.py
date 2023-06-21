@@ -2,6 +2,10 @@ from django.db import models
 
 
 class Ingredient(models.Model):
+    """
+    Модель ингредиента.
+    """
+
     name = models.CharField(
         verbose_name='Название ингредиента',
         max_length=200,
