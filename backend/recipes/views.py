@@ -88,10 +88,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """
         Загрузка списка покупок.
         """
-        try:
-            return get_shopping_list(request)
-        except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return get_shopping_list(request)
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
