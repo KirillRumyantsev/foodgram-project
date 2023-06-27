@@ -1,13 +1,13 @@
 from django.core.validators import MinValueValidator
-from django.shortcuts import get_object_or_404
+from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import exceptions, serializers
+from rest_framework.exceptions import ValidationError
+
 from users.serializers import CustomUserSerializer
 
-from .models.ingredients import Ingredient
-from .models.recipe import (FavoriteRecipe, IngredientsRecipe, Recipe,
-                            ShoppingCart)
-from .models.tags import Tag
+from .models import (FavoriteRecipe, Ingredient, IngredientsRecipe, Recipe,
+                     ShoppingCart, Tag)
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -41,33 +41,16 @@ class IngredientsRecipeSerializer(serializers.ModelSerializer):
     ингредиента и рецепта.
     """
 
-    id = serializers.SerializerMethodField(
-        method_name='get_id'
+    id = serializers.IntegerField(
+        source="ingredient.id",
+        read_only=True
     )
-    name = serializers.SerializerMethodField(
-        method_name='get_name'
+    name = serializers.CharField(
+        source="ingredient.name"
     )
-    measurement_unit = serializers.SerializerMethodField(
-        method_name='get_measurement_unit'
+    measurement_unit = serializers.CharField(
+        source="ingredient.measurement_unit"
     )
-
-    def get_id(self, obj):
-        """
-        Получение id ингредиента.
-        """
-        return obj.ingredient.id
-
-    def get_name(self, obj):
-        """
-        Получение имени ингредиента.
-        """
-        return obj.ingredient.name
-
-    def get_measurement_unit(self, obj):
-        """
-        Получение единицы измерения ингредиента.
-        """
-        return obj.ingredient.measurement_unit
 
     class Meta:
         model = IngredientsRecipe
@@ -76,7 +59,7 @@ class IngredientsRecipeSerializer(serializers.ModelSerializer):
 
 class CreateUpdateIngredientsRecipeSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для создания и удаления ингредиента.
+    Сериализатор для создания изменения и удаления ингредиента.
     """
 
     id = serializers.IntegerField()
@@ -195,13 +178,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             )
 
         ingredients = [item['id'] for item in value]
-        for ingredient in ingredients:
-            if ingredients.count(ingredient) > 1:
-                raise exceptions.ValidationError(
-                    'У рецепта не может быть два одинаковых ингредиента.'
-                )
+        if len(ingredients) != len(set(ingredients)):
+            raise ValidationError(
+                'Ингредиенты в рецепте должны быть уникальными!'
+            )
         return value
 
+    @transaction.atomic
     def create(self, validated_data):
         """
         Создание рецепта.
@@ -213,34 +196,33 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
 
         for ingredient in ingredients:
-            amount = ingredient['amount']
-            ingredient = get_object_or_404(Ingredient, pk=ingredient['id'])
-            IngredientsRecipe.objects.create(
-                recipe=recipe,
-                ingredient=ingredient,
-                amount=amount
+            IngredientsRecipe.objects.bulk_create(
+                [IngredientsRecipe(
+                 ingredient=Ingredient.objects.get(pk=ingredient['id']),
+                 recipe=recipe,
+                 amount=ingredient['amount']
+                 )]
             )
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         """
         Изменение рецепта.
         """
         tags = validated_data.pop('tags', None)
-        if tags is not None:
-            instance.tags.set(tags)
+        instance.tags.set(tags)
         ingredients = validated_data.pop('ingredients', None)
-        if ingredients is not None:
-            instance.ingredients.clear()
+        instance.ingredients.clear()
 
-            for ingredient in ingredients:
-                amount = ingredient['amount']
-                ingredient = get_object_or_404(Ingredient, pk=ingredient['id'])
-                IngredientsRecipe.objects.update_or_create(
+        for ingredient in ingredients:
+            IngredientsRecipe.objects.bulk_create(
+                [IngredientsRecipe(
                     recipe=instance,
-                    ingredient=ingredient,
-                    defaults={'amount': amount}
-                )
+                    ingredient=Ingredient.objects.get(pk=ingredient['id']),
+                    amount=ingredient['amount']
+                )]
+            )
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):

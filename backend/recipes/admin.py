@@ -1,8 +1,6 @@
 from django.contrib import admin
 
-from .models.ingredients import Ingredient
-from .models.recipe import IngredientsRecipe, Recipe, TagsRecipe
-from .models.tags import Tag
+from .models import Ingredient, IngredientsRecipe, Recipe, Tag
 
 
 class IngredientsInline(admin.TabularInline):
@@ -21,7 +19,7 @@ class TagsInline(admin.TabularInline):
     тега и рецепта.
     """
 
-    model = TagsRecipe
+    model = Recipe.tags.through
     extra = 1
 
 
@@ -59,6 +57,7 @@ class TagsAdmin(admin.ModelAdmin):
     inlines = [
         TagsInline
     ]
+    exclude = ('tags',)
 
 
 class IngredientsAdmin(admin.ModelAdmin):

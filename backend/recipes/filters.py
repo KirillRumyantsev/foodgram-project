@@ -1,7 +1,6 @@
 from django_filters import rest_framework as filters
 
-from .models.ingredients import Ingredient
-from .models.recipe import Recipe
+from .models import Ingredient, Recipe
 
 
 class IngredientFilter(filters.FilterSet):
@@ -43,17 +42,17 @@ class RecipeFilter(filters.FilterSet):
         Фильтрация по избранным рецептам.
         """
         if value:
-            return queryset.filter(favorite_recipes__user=self.request.user)
-        return queryset.exclude(
-            favorite_recipes__user=self.request.user
-        )
+            return queryset.filter(
+                favorite_recipes__user=self.request.user
+            )
+        return queryset
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         """
         Фильтрация по списку покупок.
         """
         if value:
-            return Recipe.objects.filter(
+            return queryset.filter(
                 shopping_cart__user=self.request.user
             )
 

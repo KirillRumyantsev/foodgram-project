@@ -1,5 +1,5 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models.recipe import Recipe
+from recipes.models import Recipe
 from rest_framework import serializers
 
 from .models import CustomUser, Follow
@@ -87,7 +87,7 @@ class SubscriptionSerializer(CustomUserSerializer):
         """
         Получение количества рецептов автора.
         """
-        return Recipe.objects.filter(author=obj).count()
+        return obj.recipes.count()
 
     class Meta:
         model = CustomUser
