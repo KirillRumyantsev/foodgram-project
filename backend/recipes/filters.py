@@ -55,6 +55,7 @@ class RecipeFilter(filters.FilterSet):
             return queryset.filter(
                 shopping_cart__user=self.request.user
             )
+        return queryset
 
     class Meta:
         model = Recipe

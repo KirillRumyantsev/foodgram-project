@@ -5,7 +5,6 @@ from rest_framework import exceptions, serializers
 from rest_framework.exceptions import ValidationError
 
 from users.serializers import CustomUserSerializer
-
 from .models import (FavoriteRecipe, Ingredient, IngredientsRecipe, Recipe,
                      ShoppingCart, Tag)
 
@@ -195,14 +194,12 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(author=author, **validated_data)
         recipe.tags.set(tags)
 
-        for ingredient in ingredients:
-            IngredientsRecipe.objects.bulk_create(
-                [IngredientsRecipe(
-                 ingredient=Ingredient.objects.get(pk=ingredient['id']),
-                 recipe=recipe,
-                 amount=ingredient['amount']
-                 )]
-            )
+        IngredientsRecipe.objects.bulk_create(
+            [IngredientsRecipe(
+                ingredient=Ingredient.objects.get(pk=ingredient['id']),
+                recipe=recipe,
+                amount=ingredient['amount']
+            )for ingredient in ingredients])
         return recipe
 
     @transaction.atomic
@@ -215,14 +212,12 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients', None)
         instance.ingredients.clear()
 
-        for ingredient in ingredients:
-            IngredientsRecipe.objects.bulk_create(
-                [IngredientsRecipe(
-                    recipe=instance,
-                    ingredient=Ingredient.objects.get(pk=ingredient['id']),
-                    amount=ingredient['amount']
-                )]
-            )
+        IngredientsRecipe.objects.bulk_create(
+            [IngredientsRecipe(
+                recipe=instance,
+                ingredient=Ingredient.objects.get(pk=ingredient['id']),
+                amount=ingredient['amount']
+            )for ingredient in ingredients])
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
