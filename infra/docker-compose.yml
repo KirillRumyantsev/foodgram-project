@@ -14,7 +14,7 @@ services:
       - pg_data:/var/lib/postgresql/data/
 
   backend:
-    build: ../backend
+    image: kirillrumyantsev/foodgram_backend
     env_file:
       - ../.env
     depends_on:
@@ -24,7 +24,7 @@ services:
       - media:/media
 
   frontend:
-    build: ../frontend
+    image: kirillrumyantsev/foodgram_frontend
     command: cp -r /app/build/. /frontend_static/
     volumes:
       - ../frontend/:/app/result_build/
@@ -33,7 +33,9 @@ services:
   nginx:
     image: nginx:1.21.3-alpine
     ports:
-      - "80:80"
+      - "8000:80"
+    depends_on:
+      - backend
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
