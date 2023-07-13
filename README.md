@@ -111,3 +111,10 @@ sudo docker compose -f docker-compose.yml exec backend python manage.py load_dat
 Также необходимо заполнить базу данных тегами (или другими данными).  
 Для этого требуется войти в [админ-зону](http://localhost/admin/)
 проекта под логином и паролем администратора (пользователя, созданного командой createsuperuser).
+
+## Об авторе
+
+Румянцев Кирилл Владимирович
+Python-разработчик (Backend)  
+E-mail: kirill900304@yandex.ru  
+Telegram: @Kirill_Rumyantsev_90
