@@ -115,6 +115,7 @@ sudo docker compose -f docker-compose.yml exec backend python manage.py load_dat
 ## Об авторе
 
 Румянцев Кирилл Владимирович
+
 Python-разработчик (Backend)  
 E-mail: kirill900304@yandex.ru  
 Telegram: @Kirill_Rumyantsev_90
